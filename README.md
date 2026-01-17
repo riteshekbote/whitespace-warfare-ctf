@@ -11,4 +11,4 @@ Zero Width Unicode Steganography (ZWSP / ZWNJ)
 1. Unzip The File
 
 ```bash
-python3 script.py
+python3 whitespace.py
