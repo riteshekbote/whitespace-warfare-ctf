@@ -1,0 +1,12 @@
+# WhiteSpace Warfare - CTF Writeup
+
+This repository contains the decoder script used to solve the
+"WhiteSpace Warfare" challenge.
+
+## Technique
+Zero Width Unicode Steganography (ZWSP / ZWNJ)
+
+## How to Run
+
+```bash
+python3 script.py
