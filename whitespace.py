@@ -1,9 +1,13 @@
 import random
 import os
+import re
 
 # Zero-width characters
 zwsp = '\u200B'  # Zero Width Space
 zwnj = '\u200C'  # Zero Width Non-Joiner
+
+# Generic flag pattern: PREFIX{content} - e.g. ICS{...}, HQX{...}, CTF{...}
+FLAG_RE = re.compile(r'[A-Z0-9]{2,12}\{[^}]{4,}\}')
 
 def generator(flag=''):
     """Generate steganographic text with hidden flag"""
@@ -59,6 +63,14 @@ def decoder(text):
     
     return result1, result2
 
+def extract_flag(result):
+    """Return the first flag-shaped token in a decoded result, or None"""
+    match = FLAG_RE.search(result)
+    if match:
+        print(f"\n🚩 FLAG FOUND: {match.group(0)}")
+        return match.group(0)
+    return None
+
 # Read the file
 def decode_file(filename):
     """Decode a file containing steganographic text"""
@@ -71,16 +83,13 @@ def decode_file(filename):
         
         result1, result2 = decoder(text)
         
-        # Determine which result looks like a flag
-        if result1.startswith('ICS{') or 'ICS{' in result1:
-            print(f"\n🚩 FLAG FOUND: {result1}")
-            return result1
-        elif result2.startswith('ICS{') or 'ICS{' in result2:
-            print(f"\n🚩 FLAG FOUND: {result2}")
-            return result2
-        else:
-            print("\n⚠️ No clear flag format found. Check both results above.")
-            return None
+        # Determine which result looks like a flag (any prefix, not just ICS{)
+        for result in (result1, result2):
+            flag = extract_flag(result)
+            if flag:
+                return flag
+        print("\n⚠️ No clear flag format found. Check both results above.")
+        return None
             
     except FileNotFoundError:
         print(f"Error: File '{filename}' not found")
@@ -95,15 +104,12 @@ def decode_text(text):
     print(f"Text loaded: {len(text)} characters")
     result1, result2 = decoder(text)
     
-    if result1.startswith('ICS{') or 'ICS{' in result1:
-        print(f"\n🚩 FLAG FOUND: {result1}")
-        return result1
-    elif result2.startswith('ICS{') or 'ICS{' in result2:
-        print(f"\n🚩 FLAG FOUND: {result2}")
-        return result2
-    else:
-        print("\n⚠️ No clear flag format found. Check both results above.")
-        return None
+    for result in (result1, result2):
+        flag = extract_flag(result)
+        if flag:
+            return flag
+    print("\n⚠️ No clear flag format found. Check both results above.")
+    return None
 
 # Main execution
 if __name__ == "__main__":
